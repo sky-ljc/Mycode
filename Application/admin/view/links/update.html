@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>添加图册</title>
+    {include file="public:head" /}
+    <link rel="stylesheet" href="__STATIC__/admin/lib/bs/css/bootstrap.css">
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<form style="margin-left:50px;margin-top: 20px;" action="{:url('Links/doupdate')}" method="post" id="form1">
+    <input type="hidden" value="{$link->id}" name="id">
+    <div class="form-group">
+        <label for="link_name">链接名称</label>
+        <input type="text" class="form-control" id="link_name" placeholder="链接名称" name="link_name" value="{$link->link_name}">
+    </div>
+    <!--<div class="form-group">-->
+    <!--<input type="checkbox" id="banner" name="is_banner" value="1">-->
+    <!--<label for="banner">是否Banner</label>-->
+    <!--</div>-->
+    <div class="form-group">
+        <label for="link_url">链接地址</label>
+        <input type="text" class="form-control" id="link_url" placeholder="链接url" name="link_url" value="{$link->link_url}">
+    </div>
+    <div class="form-group">
+        <label for="link_remark">描述:</label>
+        <textarea class="form-control" rows="3" id="link_remark" name="link_remark">{$link->link_remark}</textarea>
+    </div>
+    <button type="submit" class="btn btn-default">立即修改</button>
+</form>
+<script type="text/javascript" src="__STATIC__/admin/js/jquery.validate.min.js"></script>
+</div>
+<script>
+    $('#form1').validate({
+        //设置验证规则
+        rules:{
+            link_name: {
+                required : true,
+                minlength: 2,
+                maxlength: 32
+            },
+            link_url: {
+                required : true,
+                minlength: 10,
+                maxlength: 32
+            },
+            link_remark:{
+                maxlength: 100
+            }
+        },
+        //设置提示信息
+        messages:{
+            link_name:{
+                required:"链接名称不能为空" ,
+                minlength:"链接不能小于2位",
+                maxlength:"链接不能大于32位"
+            },
+            link_url:{
+                required:"链接地址不能为空" ,
+                minlength:"链接地址不能小于10位",
+                maxlength:"链接地址不能大于32位"
+            },
+            link_remark:{
+                maxlength:"描述不能大于100位"
+            }
+        }
+//        //配置成功信息
+//        success:function(label){
+//            label.addClass('ok').html('验证通过');
+//            label.removeClass('error');
+//        },
+//        errorElement:'div',
+//        validClass:'ok'
+//        errorPlacement:function(error,element){
+//            error.appendTo(element.parent());
+//        }
+    });
+</script>
+
+</body>
+
+</html>

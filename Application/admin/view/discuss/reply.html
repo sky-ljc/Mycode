@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>回复列表</title>
+    {include file="public:head" /}
+</head>
+<body class="body">
+<div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a href="{:url('Index/index')}">首页</a>
+        <a href="javascript:void(0);" onclick="piclose()">留言列表</a>
+        <a>
+            <cite>留言回复</cite>
+        </a>
+      </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+</div>
+<div class="x-body">
+    <xblock>
+        <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
+        <span class="x-right" style="line-height:40px">共有数据：{$num} 条</span>
+    </xblock>
+    <table class="layui-table">
+        <thead>
+        <tr>
+            <th>
+                <div class="layui-unselect header layui-form-checkbox" lay-skin="primary"><i class="layui-icon">&#xe605;</i></div>
+            </th>
+            <th>序号</th>
+            <th>留言用户</th>
+            <th>文章标题</th>
+            <th>留言内容</th>
+            <th>日期</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {volist name="arr" id="vo" key='k'}
+        <tr>
+            <td>
+                <div class="layui-unselect layui-form-checkbox" lay-skin="primary" data-id={$vo.rid}><i class="layui-icon">&#xe605;</i></div>
+            </td>
+            <td>{$k}</td>
+            <td>{$vo.username}</td>
+            <td>{$vo.tag_title}</td>
+            <td>{$vo.rcontent}</td>
+            <td>{$vo.created_time|date="Y-m-d H:i:s",###}</td>
+            <td class="td-manage">
+                <!--<button class="layui-btn layui-btn-danger" onclick=""><i class="layui-icon"></i>删除</button>-->
+                <a title="删除" onclick="member_del(this,'{$vo.rid}')" href="javascript:;">
+                    <i class="layui-icon">&#xe640;</i>
+                </a>
+            </td>
+        </tr>
+        {/volist}
+        </tbody>
+    </table>
+</div>
+<script>
+    function piclose()
+    {
+        var index = parent.layer.getFrameIndex(window.name);
+        parent.layer.close(index);
+        location.href='{:url("Banner/index")}';
+    }
+    /*用户-删除*/
+    function member_del(obj,id){
+        layer.confirm('确认要删除吗？',function(){
+            //发异步删除数据
+            var url = "{:url('Adiscuss/repdelone')}";
+            $.ajax({
+                url:url,
+                data:{id:id},
+                type:'post',
+                success:function(res)
+                {
+                    if(res.error){
+                        $(obj).parents("tr").remove();
+                        layer.msg('已删除!',{icon:1,time:1000});
+                    }else{
+                        layer.alert(res.mess);
+                    }
+                }
+            });
+
+        });
+    }
+
+
+    function delAll (argument) {
+        var data = tableCheck.getData();
+        layer.confirm('确认要批量删除吗？',function(){
+            //捉到所有被选中的，发异步进行删除
+//            var a = $('.layui-unselect layui-form-checkbox layui-form-checked').data-id.val();
+            var url = "{:url('Adiscuss/repdatedel')}";
+            $.ajax({
+                url:url,
+                data:{ids:data},
+                type:'post',
+                success:function (res) {
+                    if(res.error==1){
+                        layer.msg('删除成功',{icon:1,time:1000});
+                        $(".layui-form-checked").not('.header').parents('tr').remove();
+                    }else if(res.error==0){
+                        layer.msg('删除失败',{icon:5,time:1000});
+                    }else{
+                        layer.msg(res.mess,{icon:2,time:1000});
+                    }
+                }
+            });
+        });
+    }
+</script>
+</body>
+
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>栏目列表</title>
+    {include file="public:head" /}
+    <style>
+        table.layui-table tr th,table tr td{
+            text-align: center;
+        }
+    </style>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a href="">首页</a>
+        <a href="">演示</a>
+        <a>
+          <cite>导航元素</cite></a>
+      </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+</div>
+<div class="x-body">
+    <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so" action="" method="post">
+            <input class="layui-input" placeholder="开始日" name="start" id="start">
+            <input class="layui-input" placeholder="截止日" name="end" id="end">
+            <input type="text" name="pic_name"  placeholder="请输入图册名" autocomplete="off" class="layui-input">
+            <button class="layui-btn"  lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i></button>
+        </form>
+    </div>
+    <xblock>
+        <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
+        <a href="{:url('add')}"><button class="layui-btn"><i class="layui-icon"></i>添加</button></a>
+        <span class="x-right" style="line-height:40px">共有数据{$total}条</span>
+    </xblock>
+{if condition="!empty($data)"}
+    <table class="layui-table">
+        <thead>
+        <tr>
+            <th>
+                <div class="layui-unselect header layui-form-checkbox" lay-skin="primary"><i class="layui-icon">&#xe605;</i></div>
+            </th>
+            <th>序号</th>
+            <th>图册</th>
+            <th>图册名称</th>
+            <th>所属栏目</th>
+            <th>描述</th>
+            <th>添加时间</th>
+            <th>状态</th>
+            <th >操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {foreach $data as $k=>$v}
+            <tr>
+                <td>
+                    <div class="layui-unselect layui-form-checkbox" lay-skin="primary" data-id='{$v.id}'><i class="layui-icon">&#xe605;</i></div>
+                </td>
+                <td>{$k+1}</td>
+                <td style="width: 80px;padding: 5px;">
+                    <a href="javascript:void(0);" onclick="picture_edit('查看图片','{:url(\'Banner/show\',[\'id\'=>$v->id])}');"><img src="__UPLOAD__/{$v->pic_img}" alt="" style="width: 100px;"></a>
+                </td>
+                <td>{$v->pic_name}</td>
+                <td>{$v->cat_name}</td>
+                <td>{$v->pic_remark}</td>
+                <td>{$v->created_time}</td>
+                {if condition="$v.bstatus"}
+                    <td class="td-status">
+                        <span class="layui-btn layui-btn-normal layui-btn-mini">已启用</span>
+                    </td>
+                {else /}
+                    <td class="td-status">
+                        <span class="layui-btn layui-btn-disabled layui-btn-mini">已停用</span>
+                    </td>
+                {/if}
+                <td class="td-manage">
+                    {if condition="$v.bstatus neq 1"}
+                        <a onclick="member_stop(this,'{$v.id}','{$v.bstatus}')" href="javascript:;"  title="启用">
+                            <i class="layui-icon">&#xe62f;</i>
+                        </a>
+                    {else /}
+                        <a onclick="member_stop(this,'{$v.id}','{$v.bstatus}')" href="javascript:;"  title="停用">
+                            <i class="layui-icon">&#xe601;</i>
+                        </a>
+                    {/if}
+                    <a title="查看"  onclick="x_admin_show('编辑','{:url(\'Banner/update\',[\'id\'=>$v.id])}')" href="javascript:;">
+                        <i class="layui-icon">&#xe63c;</i>
+                    </a>
+                    <a title="删除" onclick="member_del(this,'{$v.id}')" href="javascript:;">
+                        <i class="layui-icon">&#xe640;</i>
+                    </a>
+                </td>
+            </tr>
+        {/foreach}
+        </tbody>
+    </table>
+
+    <div class="page">
+        {$data->render()}
+    </div>
+{else/}
+    <p style="text-align: center;font-size: 14px;">还没有图片信息,赶紧去添加吧!</p>
+{/if}
+</div>
+<script>
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#end' //指定元素
+        });
+    });
+
+    /*用户-停用*/
+    function member_stop(obj,id,sta){
+        if(sta==1){
+            layer.confirm('确认要停用吗？',function(){
+                $.ajax({
+                    type:'get',
+                    url:"{:url('Banner/actstate')}",
+                    data: {'id':id,'sta':sta},
+                    success:function(res){
+                        if(res.error){
+                            if($(obj).attr('title')=='停用'){
+                                //发异步把用户状态进行更
+                                $(obj).attr('title','启用');
+                                $(obj).find('i').html('&#xe62f;');
+                                $(obj).parents("tr").find(".td-status").find('span').attr('class','layui-btn layui-btn-disabled layui-btn-mini').html('已停用');
+                                $(obj).attr('onclick',"member_stop(this,'"+res.id+"','"+res.sta+"')");
+                                layer.msg('已停用!',{icon: 5,time:1000});
+                            }
+                        }else{
+                            layer.msg('停用失败!',{icon: 5,time:1000});
+                        }
+                    }
+                })
+            })
+        }else{
+            layer.confirm('确认要启用吗？',function(){
+                $.ajax({
+                    type:'get',
+                    url:"{:url('Banner/actstate')}",
+                    data: {'id':id,'sta':sta},
+                    success:function(res){
+                        if(res.error){
+                            if($(obj).attr('title')=='启用'){
+                                //发异步把用户状态进行更
+                                $(obj).attr('title','停用');
+                                $(obj).find('i').html('&#xe601;');
+                                $(obj).parents("tr").find(".td-status").find('span').attr('class',"layui-btn layui-btn-normal layui-btn-mini").html('已启用');
+                                $(obj).attr('onclick',"member_stop(this,'"+res.id+"','"+res.sta+"')");
+                                layer.msg('已启用!',{icon: 1,time:1000});
+                            }
+                        }else{
+                            layer.msg('启用失败!',{icon: 5,time:1000});
+                        }
+                    }
+                })
+            })
+        }
+
+    }
+
+    /*用户-删除*/
+    function member_del(obj,id){
+        layer.confirm('确认要删除吗？',function(index){
+            //发异步删除数据
+            var url = '{:url("Banner/oneDel")}';
+            var data = {id:id};
+            $.post(url,data,function (res) {
+                if(res.error){
+                      $(obj).parents("tr").remove();
+                      layer.msg(res.mess,{icon:1,time:1000});
+                }else{
+                    layer.msg(res.mess,{icon:5,time:1000});
+                }
+            },'json')
+        });
+    }
+
+
+
+    function delAll (argument) {
+        //var data = tableCheck.getData();
+        layer.confirm('确认要删除吗？',function(index){
+            var ids = [];
+            var obj = $(".layui-form-checked");
+            obj.each(function () {
+                ids.push($(this).attr('data-id'));
+            });
+            $.ajax({
+                type: 'post',
+                url: "{:url('Banner/dataDel')}",
+                data : {ids :ids},
+                success: function(res){
+                    if (res.error == 1){
+                        layer.msg(res.mess,{icon:1,time:1000},function () {
+                            location.reload();
+                        });
+                    }else if(res.error == 0){
+                        layer.msg('删除失败!',{icon:5,time:1000});
+                    }else{
+                        layer.msg(res.mess,{icon:2,time:1000});
+                    }
+                },
+                error:function(data) {
+                    console.log(data.msg);
+                }
+            });
+        });
+    }
+    /*图片-编辑*/
+    function picture_edit(title,url){
+        var index = layer.open({
+            type: 2,
+            title: title,
+            content: url
+        });
+        layer.full(index);
+    }
+</script>
+</body>
+
+</html>

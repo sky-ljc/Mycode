@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>修改</title>
+    {include file="public:head" /}
+    <script type="text/javascript" src="__ADMIN__/lib/ueditor/ueditor.config.js"></script>
+    <script type="text/javascript" src="__ADMIN__/lib/ueditor/ueditor.all.min.js"></script>
+    <script type="text/javascript" src="__ADMIN__/lib/ueditor/lang/zh-cn/zh-cn.js"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <script type="text/javascript" src="__ADMIN__/js/jquery-migrate-1.4.1.js"></script>
+    <script type="text/javascript" src="__ADMIN__/js/uploadPreview.js"></script>
+    <style type="text/css">
+        .up_load_img{
+            width: 110px;
+            height: 110px;
+            overflow:hidden;
+            float: left;
+            position: relative;
+        }
+        .up_load_img input[type="file"]{
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            opacity: 0;
+            filter:alpha(opacity=0);
+            z-index:2;
+        }
+    </style>
+</head>
+  
+  <body>
+    <div class="x-body">
+        <form class="layui-form" method="post" name="fom" id="fom" enctype="multipart/form-data" action="{:url('Book/doedit')}">
+          <div class="layui-form-item">
+              <label for="tag_title" class="layui-form-label">
+                  <span class="x-red">*</span>标题
+              </label>
+              <div class="layui-input-inline">
+                  <input type="text" id="tag_title" name="tag_title" required="" lay-verify="required"
+                  autocomplete="off" class="layui-input" value="{$lst.tag_title}">
+              </div>
+          </div>
+
+            <div class="layui-form-item">
+                <label for="tag_writer" class="layui-form-label">
+                    <span class="x-red">*</span>作者
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="tag_writer" name="tag_writer" required="" lay-verify="required"
+                           autocomplete="off" class="layui-input" value="{$lst.tag_writer}">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+            <label for="tag_column" class="layui-form-label">
+                <span class="x-red">*</span>栏目
+            </label>
+            <div class="layui-input-inline">
+                <select id="shipping" name="tag_column" class="valid" style="z-index: 1000">
+                    {foreach name='cates' item='v' key='k'}
+                    {php}
+                    $str = str_repeat("&nbsp&nbsp",$v['lev'])
+                    {/php}
+                    <option value="{$v.id}" >{$str}{$v.cat_name}</option>
+                    {/foreach}
+                </select>
+            </div>
+    </div>
+
+            <div class="layui-form-item">
+                <label for="tag_describe" class="layui-form-label">
+                    <span class="x-red">*</span>描述
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="tag_describe" name="tag_describe" required="" lay-verify="required"
+                           autocomplete="off" class="layui-input" value="{$lst.tag_describe}">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="tag_img" class="layui-form-label">
+                    <span class="x-red">*</span>图片
+                </label>
+                <div class="layui-input-inline up_load_img">
+                    <input type="file" id="tag_img" name="tag_img">
+                    <img src="__ARTICLE__/{$lst.tag_img}" width="102" height="101" id="photoimg" />
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="tag_label" class="layui-form-label">
+                    <span class="x-red">*</span>标签
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="tag_label" name="tag_label" required="" lay-verify="required"
+                           autocomplete="off" class="layui-input" value="{$lst.tag_label}">
+                </div>
+            </div>
+          <div class="layui-form-item">
+              <label for="tag_key" class="layui-form-label">
+                  <span class="x-red">*</span>关键字
+              </label>
+              <div class="layui-input-inline">
+                  <input type="text" id="tag_key" name="tag_key" required="" lay-verify="required"
+                  autocomplete="off" class="layui-input" value="{$lst.tag_key}">
+              </div>
+          </div>
+
+          <div class="layui-form-item layui-form-text">
+              <label for="tag_content" class="layui-form-label">
+                  内容
+              </label>
+              <div class="layui-input-block">
+                  <textarea placeholder="请输入内容" id="tag_content" name="tag_content" class="layui-textarea">{$lst.tag_content}</textarea>
+              </div>
+          </div>
+            <div class="layui-form-item">
+                <label for="tijiao" class="layui-form-label">
+                </label>
+                <input type="hidden" value="{$lst.id}" name="id">
+                <button  class="layui-btn" lay-filter="add" lay-submit="" id="tijiao">
+                    修改
+                </button>
+            </div>
+      </form>
+    </div>
+    <script>
+
+
+
+        $(function(){
+            $("#tag_img").uploadPreview({Img: "photoimg", Width: 102,Height: 101});
+        });
+
+            UE.getEditor('tag_content',{initialFrameWidth:1335,initialFrameHeight:342});
+
+        layui.use(['form','layer'], function(){
+            $ = layui.jquery;
+          var form = layui.form
+          ,layer = layui.layer;
+        
+          //自定义验证规则
+          form.verify({
+            nikename: function(value){
+              if(value.length < 5){
+                return '昵称至少得5个字符啊';
+              }
+            }
+            ,pass: [/(.+){6,12}$/, '密码必须6到12位']
+            ,repass: function(value){
+                if($('#L_pass').val()!=$('#L_repass').val()){
+                    return '两次密码不一致';
+                }
+            }
+          });
+
+            //监听提交
+
+            form.on('submit(add)', function(){
+                //发异步，把数据提交给php
+                $('#fom').submit();
+                return false;
+            });
+
+
+        });
+
+
+    </script>
+
+  </body>
+
+</html>

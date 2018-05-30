@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>添加栏目</title>
+    {include file="public:head" /}
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="x-body">
+<form class="layui-form" action="" method="post">
+        <div class="layui-form-item">
+            <label for="cat_name" class="layui-form-label">
+                <span class="x-red">*</span>栏目名称
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="cat_name" name="cat_name" required="" lay-verify="cat_name"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="cat_alias" class="layui-form-label">
+                <span class="x-red">*</span>栏目别名
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="cat_alias" name="cat_alias" required="" lay-verify="alias"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="parent_id" class="layui-form-label">
+                <span class="x-red">*</span>父节点
+            </label>
+            <div class="layui-input-inline">
+                <select id="parent_id" name="parent_id" class="valid">
+                    <option value="0">顶级栏目</option>
+                    {foreach name='cates' item='v' key='k'}
+                        {php}
+                            $str = str_repeat("&nbsp&nbsp",$v['lev'])
+                        {/php}
+                        <option value="{$v.id}" >{$str}{$v.cat_name}</option>
+                    {/foreach}
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="keywork" class="layui-form-label">
+                <span class="x-red">*</span>栏目关键字
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="keywork" name="cat_keyword" required="" lay-verify="required"
+                       autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                <span class="x-red">*</span>
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label for="desc" class="layui-form-label">
+                描述
+            </label>
+            <div class="layui-input-block">
+                <textarea placeholder="请输入内容" id="desc" name="remark" class="layui-textarea" lay-verify="remark"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="L_repass" class="layui-form-label">
+            </label>
+            <button  class="layui-btn" lay-filter="add" lay-submit="" id="L_repass">
+                增加
+            </button>
+        </div>
+</form>
+</div>
+<script>
+    layui.use(['form','layer'], function(){
+        $ = layui.jquery;
+        var form = layui.form
+            ,layer = layui.layer;
+        //自定义验证规则
+        form.verify({
+            cat_name: function(value){
+                if(value.length < 3){
+                    return '栏目名称至少3个字符';
+                }
+                if(value.length > 12){
+                    return '栏目名称最多12个字符';
+                }
+            },
+            alias : function (value) {
+                if(value.length < 2){
+                    return '栏目别名至少2个字符';
+                }
+                if(value.length > 6){
+                    return '栏目名称最多6个字符';
+                }
+            },
+            remark : function (value) {
+                if(value.length < 3){
+                    return '栏目描述至少3个字符';
+                }
+                if(value.length > 100){
+                    return '栏目描述最多100个字符';
+                }
+            }
+        });
+
+        //监听提交
+        form.on('submit(add)', function(data){
+           //console.log(data.field);
+           $.ajax({
+              url : '{:url("doAdd")}',
+              data : data.field,
+              type: 'post',
+              dataType : 'json',
+              success : function (res) {
+                   if(res.error){
+                   layer.msg(res.mess,function () {
+                       var index = parent.layer.getFrameIndex(window.name);
+                       parent.layer.close(index);
+                   });
+                   }else{
+                       layer.msg(res.mess);
+                   }
+               }
+           });
+            return false;
+        });
+
+
+    });
+</script>
+
+</body>
+
+</html>
